@@ -2,12 +2,9 @@ package syringe
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
-	"os"
-	"slices"
-	"strconv"
+	"strings"
 )
 
 type ingest struct {
@@ -22,12 +19,16 @@ type ingest struct {
 	} `json:"ingests"`
 }
 
-func main() {
-	Resolve()
+type stringingest struct {
+	ID	            string
+	Availability	string
+	Default		    string
+	Name			string
+	URLTemplate		string
+	URLTemplateSecure string
 }
 
-func Resolve()(values []string) {
-	fmt.Println("Selecting your closest available ingest TTV server..")
+func Resolve()(values stringingest) {
 	resp, err := http.Get("https://ingest.twitch.tv/ingests")
 	if err != nil {
 	panic(err)
@@ -40,35 +41,20 @@ func Resolve()(values []string) {
 	}
 	var Result ingest
 
-	if err := json.Unmarshal(body, &Result); err != nil {  
-    fmt.Println("Can not unmarshal JSON")
+	err = json.Unmarshal(body, &Result); if err != nil {  
+    panic(err)
 }
-
-	var array []string
-
-	args := os.Args[1:]
-	if(len(args) != 0) {
-	if(slices.Contains(args, "-r")) {
-	for _, rec := range Result.Ingests {
-		if(rec.Availability == 1) {
-			for i := 0; i > 4; i++ {
-				switch i {
-				case 0: array = append(array, strconv.Itoa(rec.ID))
-				case 1: array = append(array, strconv.Itoa(int(rec.Availability)))
-				case 2: array = append(array, string(rec.Name))
-				case 3: array = append(array, string(rec.URLTemplate))
-				case 4: array = append(array, string(rec.URLTemplateSecure))
-			}
+		parts := strings.Split(string(body), "},")
+		reming := strings.Split(parts[1], "{")
+		sliced := strings.Split(reming[1], ",")
+		
+		var returnvalue = new(stringingest)
+		returnvalue.ID = sliced[0]
+		returnvalue.Availability = sliced[1]
+		returnvalue.Default = sliced[2]
+		returnvalue.Name = sliced[3] + sliced[4]
+		returnvalue.URLTemplate = sliced[5] + strings.Split(reming[2], ",")[0]
+		returnvalue.URLTemplateSecure = strings.Split(reming[2], ",")[1] + `{stream_key}"`
+		return *returnvalue
 		}
-		}}}}
 
-	if(len(args) == 0) {
-		for _, rec := range Result.Ingests {
-			if(rec.Availability == 1) {
-				fmt.Println("ID: ", rec.ID, "\nAvailability: ", rec.Availability, "\nName: ", rec.Name, "\nURL Template: ", rec.URLTemplate, "\nSecure URL Template: ", rec.URLTemplateSecure)  
-		break; }
-	}
-	
-}
-return array
-}
