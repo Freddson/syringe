@@ -1,11 +1,12 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
 	"encoding/json"
-	"os"
+	"fmt"
 	"io"
+	"net/http"
+	"os"
+	"slices"
 )
 
 type ingest struct {
@@ -24,7 +25,7 @@ func main() {
 	Resolve()
 }
 
-func Resolve()() {
+func Resolve()(values []string) {
 	fmt.Println("Selecting your closest available ingest TTV server..")
 	resp, err := http.Get("https://ingest.twitch.tv/ingests")
 	if err != nil {
@@ -41,10 +42,32 @@ func Resolve()() {
 	if err := json.Unmarshal(body, &Result); err != nil {  
     fmt.Println("Can not unmarshal JSON")
 }
-args := os.Args[:1]
-if(len(args) == 0) {
-for _, rec := range Result.Ingests {
-	if(rec.Availability == 1) {
-	fmt.Println("ID: ", rec.ID, "\nAvailability: ", rec.Availability, "\nName: ", rec.Name, "\nURL Template: ", rec.URLTemplate, "\nSecure URL Template: ", rec.URLTemplateSecure) 
-	break; }
-}}}
+
+	var array []string
+
+	args := os.Args[1:]
+	if(len(args) != 0) {
+	if(slices.Contains(args, "-r")) {
+	for _, rec := range Result.Ingests {
+		if(rec.Availability == 1) {
+			for i := 0; i > 4; i++ {
+				switch i {
+				case 0: array = append(array, string(rec.ID))
+				case 1: array = append(array, string(int(rec.Availability)))
+				case 2: array = append(array, string(rec.Name))
+				case 3: array = append(array, string(rec.URLTemplate))
+				case 4: array = append(array, string(rec.URLTemplateSecure))
+			}
+		}
+		}}}}
+
+	if(len(args) == 0) {
+		for _, rec := range Result.Ingests {
+			if(rec.Availability == 1) {
+				fmt.Println("ID: ", rec.ID, "\nAvailability: ", rec.Availability, "\nName: ", rec.Name, "\nURL Template: ", rec.URLTemplate, "\nSecure URL Template: ", rec.URLTemplateSecure)  
+		break; }
+	}
+	
+}
+return array
+}
