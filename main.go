@@ -22,10 +22,6 @@ type ingest struct {
 	} `json:"ingests"`
 }
 
-func main() {
-	Resolve()
-}
-
 func Resolve()(values []string) {
 	fmt.Println("Selecting your closest available ingest TTV server..")
 	resp, err := http.Get("https://ingest.twitch.tv/ingests")
