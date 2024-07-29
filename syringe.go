@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"encoding/json"
+	"os"
 	"io"
 )
 
@@ -20,6 +21,10 @@ type ingest struct {
 }
 
 func main() {
+	Resolve()
+}
+
+func Resolve()() {
 	fmt.Println("Selecting your closest available ingest TTV server..")
 	resp, err := http.Get("https://ingest.twitch.tv/ingests")
 	if err != nil {
@@ -31,14 +36,15 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	var result ingest
-	if err := json.Unmarshal(body, &result); err != nil {   // Parse []byte to go struct pointer
+	var Result ingest
+
+	if err := json.Unmarshal(body, &Result); err != nil {  
     fmt.Println("Can not unmarshal JSON")
 }
-
-for _, rec := range result.Ingests {
+args := os.Args[:1]
+if(len(args) == 0) {
+for _, rec := range Result.Ingests {
 	if(rec.Availability == 1) {
 	fmt.Println("ID: ", rec.ID, "\nAvailability: ", rec.Availability, "\nName: ", rec.Name, "\nURL Template: ", rec.URLTemplate, "\nSecure URL Template: ", rec.URLTemplateSecure) 
 	break; }
-}
-}
+}}}
