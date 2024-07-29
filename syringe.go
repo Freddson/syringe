@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"slices"
+	"strconv"
 )
 
 type ingest struct {
@@ -52,8 +53,8 @@ func Resolve()(values []string) {
 		if(rec.Availability == 1) {
 			for i := 0; i > 4; i++ {
 				switch i {
-				case 0: array = append(array, string(rec.ID))
-				case 1: array = append(array, string(int(rec.Availability)))
+				case 0: array = append(array, strconv.Itoa(rec.ID))
+				case 1: array = append(array, strconv.Itoa(int(rec.Availability)))
 				case 2: array = append(array, string(rec.Name))
 				case 3: array = append(array, string(rec.URLTemplate))
 				case 4: array = append(array, string(rec.URLTemplateSecure))
